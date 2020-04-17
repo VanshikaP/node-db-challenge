@@ -30,6 +30,32 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+router.get('/:id/tasks', async (req, res) => {
+    try {
+        const project = await Projects.getProjectByID(req.params.id);
+        const projectTasks = await Projects.getProjectTasks(req.params.id);
+        project
+        ? res.status(200).json(projectTasks)
+        : res.status(404).json({ message: 'No Project Found with given ID' });
+    }
+    catch (err) {
+        res.status(500).json({ error: 'Failed to retreive Project', err });
+    }
+});
+
+router.get('/:id/resources', async (req, res) => {
+    try {
+        const project = await Projects.getProjectByID(req.params.id);
+        const projectResources = await Projects.getProjectResources(req.params.id);
+        project
+        ? res.status(200).json(projectResources)
+        : res.status(404).json({ message: 'No Project Found with given ID' });
+    }
+    catch (err) {
+        res.status(500).json({ error: 'Failed to retreive Project', err });
+    }
+})
+
 router.post('/', async (req, res) => {
     try {
         const newProjectID = await Projects.addProject(req.body);
@@ -39,6 +65,36 @@ router.post('/', async (req, res) => {
         res.status(500).json({ error: 'Failed to add Project', err });
     }
 });
+
+router.post('/:id/tasks', async (req, res) => {
+    try {
+        const project = await Projects.getProjectByID(req.params.id);
+        if (!project) {
+            res.status(404).json({ message: 'Invalid Project ID'});
+        } else {
+            const newTaskID = await Projects.addTask(req.params.id, req.body);
+            res.status(200).json({ id: newTaskID });
+        }
+    }
+    catch (err) {
+        res.status(500).json({ message: 'Failed to add task'})
+    }
+})
+
+router.post(':id/resources', async (req, res) => {
+    try {
+        const project = await Projects.getProjectByID(req.params.id);
+        if (!project) {
+            res.status(404).json({ message: 'Invalid Project ID'});
+        } else {
+            const resource = await Projects.addTask(req.params.id, req.body.resource_id);
+            res.status(200).json({ message: 'Resource Added to Project' });
+        }
+    }
+    catch (err) {
+        res.status(500).json({ message: 'Failed to add resource to the Project'})
+    }
+})
 
 router.put('/:id', async (req, res) =>{
     try {

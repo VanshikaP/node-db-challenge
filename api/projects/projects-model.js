@@ -28,6 +28,16 @@ function addProject(projectData) {
         .insert(projectData);
 }
 
+function addTask(projectID, taskData) {
+    return db('tasks')
+        .insert({...taskData, project_id: projectID});
+}
+
+function addResource(projectID, resourceID) {
+    return db('project-resources')
+        .insert({project_id: projectID, resource_id: resourceID});
+}
+
 function updateProject(id, projectData) {
     return db('projects')
         .where({id})
@@ -45,6 +55,8 @@ module.exports = {
     getProjectTasks,
     getProjectResources,
     addProject,
+    addTask,
+    addResources,
     updateProject,
     deleteProject
 }
