@@ -56,7 +56,7 @@ module.exports = {
     getProjectResources,
     addProject,
     addTask,
-    addResources,
+    addResource,
     updateProject,
     deleteProject
 }
