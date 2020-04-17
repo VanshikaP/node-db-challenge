@@ -9,6 +9,7 @@
     - id
     - name (required, unique)
     - description (optional)
+    - status (boolean) - default to false
 
 - Tasks
     - id
