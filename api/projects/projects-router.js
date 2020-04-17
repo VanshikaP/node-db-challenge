@@ -35,7 +35,7 @@ router.get('/:id/tasks', async (req, res) => {
         const project = await Projects.getProjectByID(req.params.id);
         const projectTasks = await Projects.getProjectTasks(req.params.id);
         project
-        ? res.status(200).json(projectTasks)
+        ? res.status(200).json({tasks: projectTasks})
         : res.status(404).json({ message: 'No Project Found with given ID' });
     }
     catch (err) {
@@ -48,7 +48,7 @@ router.get('/:id/resources', async (req, res) => {
         const project = await Projects.getProjectByID(req.params.id);
         const projectResources = await Projects.getProjectResources(req.params.id);
         project
-        ? res.status(200).json(projectResources)
+        ? res.status(200).json({resources: projectResources})
         : res.status(404).json({ message: 'No Project Found with given ID' });
     }
     catch (err) {
@@ -81,13 +81,13 @@ router.post('/:id/tasks', async (req, res) => {
     }
 })
 
-router.post(':id/resources', async (req, res) => {
+router.post('/:id/resources', async (req, res) => {
     try {
         const project = await Projects.getProjectByID(req.params.id);
         if (!project) {
             res.status(404).json({ message: 'Invalid Project ID'});
         } else {
-            const resource = await Projects.addTask(req.params.id, req.body.resource_id);
+            const resource = await Projects.addResource(req.params.id, req.body.resource_id);
             res.status(200).json({ message: 'Resource Added to Project' });
         }
     }
@@ -96,12 +96,31 @@ router.post(':id/resources', async (req, res) => {
     }
 })
 
-router.put('/:id', async (req, res) =>{
+router.put('/:id', async (req, res) => {
     try {
-        const record = await Projects.updateProject(req.params.id, req.body);
-        record
-        ? res.status(200).json({ message: `${record} project updated`})
-        : res.status(404).json({ message: 'No Projects Found with given ID' });
+        const project = await Projects.getProjectByID(req.params.id);
+        if (project) {
+            const record = await Projects.updateProject(req.params.id, req.body);
+            res.status(200).json({ message: `${record} project updated`});
+        } else {
+            res.status(404).json({ message: 'No Projects Found with given ID' });
+        }
+    }
+    catch (err) {
+        res.status(500).json({ error: 'Failed to Update Project', err });
+    }
+});
+
+router.put('/:id/toggleStatus', async (req, res) => {
+    try {
+        const project = await Projects.getProjectByID(req.params.id);
+        if (project) {
+            req.project = project;
+            const record = await Projects.updateProject(req.params.id, {status: !req.project.status});
+            res.status(200).json({ message: `${record} project status changed`});
+        } else {
+            res.status(404).json({ message: 'No Projects Found with given ID' });
+        }
     }
     catch (err) {
         res.status(500).json({ error: 'Failed to Update Project', err });
